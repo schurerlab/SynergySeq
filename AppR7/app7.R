@@ -7,106 +7,91 @@ library(plotly)
 library(DT)
 library(visNetwork)
 library(reshape2)
+library(shinythemes)
 
-#Drugs_Sigs <- read.table(file="data/L1000_Lvl5_mean_pert_and_CRISPR.txt",sep ="\t", header=TRUE)
-#Drugs_Sigs <- t(Drugs_Sigs)
-#row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs[,1])
-
-#Drugs_Sigs <- read.table(file="data/OUT3_noDMSO_noUntreated.txt",sep ="\t", header=TRUE)
-#Drugs_Sigs <- read.table(file="data/matPH3_2_1_0.2_0.3_L1000_Batch2017.txt",sep ="\t", header=TRUE)
-#Drugs_Sigs <- na.omit(Drugs_Sigs)
-#row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs$Genes)
-#Drugs <- as.character(Drugs_Sigs$Genes)
-#Drugs_Sigs <- Drugs_Sigs[,-1]
 SM_MOA <- read.csv(file="data/L1000_SM_MOA.csv", header=TRUE)
 
-
-
-
-ui <- fluidPage(navbarPage("",
+      
+ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
+### ### ### ### ### ### ### ### ### ### ### ### ### ###                                                         
+#### UI TAB1 ####
+### ### ### ### ### ### ### ### ### ### ### ### ### ### 
   tabPanel("Synergy Plot",
   sidebarLayout(
     sidebarPanel(
-      
-      h3("Step 1:"),
-      selectInput(inputId = "L1000_Dataset",
-                  label = "LINCS L1000 Dataset:",
-                  choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
-      
-      h3("Step 2:"),
-      uiOutput("ui"),
-      
-     # selectizeInput(
-      #  inputId = "signature", 'Perturbation signature:',
-      #  choices = Drugs),
-     
-      
-      
-      
-      
-      sliderInput(inputId = "bins",
-                  label = "",
-                  min = 1,
-                  max = 100,
-                  value = 33),
-      helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the JQ1 Signature"),
-      hr(),
-      h3("Step 3:"),
-      selectInput(inputId = "disease",
-                  label = "Disease signature:",
-                  choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)", 
-                              "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
-      helpText("OR"),  
-      fileInput("disease2", "Upload Disease Signature",
-              multiple = FALSE,
-              accept = c(".txt"))
-    ),
-  mainPanel(
-    tags$ul(
-      tags$li(textOutput("selected_var")), 
-      tags$li(textOutput("selected_var2")),
-      tags$li(textOutput("selected_var3"))
-    ),
-    plotlyOutput("plot1"),
-   br(),
-   br(),
-   br(),
-   br(),
-   downloadButton("downloadData", "Download Table"),
-   #DT::dataTableOutput("view1"),
-   tableOutput("table1")
-    )
-  
-)
-),
-tabPanel("Concordance Network",
-         
-         sidebarLayout(
-           sidebarPanel(
-             h3("Step 1:"),
-             selectInput(inputId = "L1000_Dataset_N",
-                         label = "LINCS L1000 Dataset:",
-                         choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
+                 h3("Step 1:"),
+                 selectInput(inputId = "L1000_Dataset",
+                 label = "Choose the L1000 Dataset:",
+                 choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
+                 hr(),
+                 h3("Step 2:"),
+                 uiOutput("ui"),
+                 sliderInput(inputId = "bins",
+                 label = "",
+                 min = 1,
+                 max = 100,
+                 value = 33),
+                 helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the JQ1 Signature"),
+                 hr(),
+                 h3("Step 3:"),
+                 selectInput(inputId = "disease",
+                 label = "Disease signature:",
+                 choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)", 
+                             "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
+                 helpText("OR"),  
+                 fileInput("disease2", "Upload a Disease Signature",
+                 multiple = FALSE,
+                 accept = c(".txt"))
+                ),
+    mainPanel(
+              tags$ul(
+                      tags$li(textOutput("selected_var")), 
+                      tags$li(textOutput("selected_var2")),
+                      tags$li(textOutput("selected_var3"))
+                     ),
+              plotlyOutput("plot1"),
+              br(),
+              br(),
+              br(),
+              br(),
+              downloadButton("downloadData", "Download Table"),
+              #DT::dataTableOutput("view1"),
+              tableOutput("table1")
+             )
+            )
+           ),
 
-             sliderInput(inputId = "bins_N",
-                         label = "Concordance Ratio threshold",
-                         min = 0.01,
-                         max = 1,
-                         value = 0.7),
-            helpText("description..."),
-             hr(),
-             h3("Step 2:"),
-             uiOutput("ui_N")
-         
-           )
+
+
+### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+#### UI TAB2 #### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+
+tabPanel("Concordance Network",
+          sidebarLayout(
+                        sidebarPanel(
+                        h3("Step 1:"),
+                        selectInput(inputId = "L1000_Dataset_N",
+                        label = "LINCS L1000 Dataset:",
+                        choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
+                        sliderInput(inputId = "bins_N",
+                        label = "Concordance Ratio threshold",
+                        min = 0.01,
+                        max = 1,
+                        value = 0.7),
+                        helpText("description..."),
+                        hr(),
+                        h3("Step 2:"),
+                        uiOutput("ui_N")
+                       ),
            
-           ,mainPanel(
-            # tableOutput("table1_N")
-             #DT::dataTableOutput("table1_N")
-            visNetworkOutput("network")
-           )
-           )
-         )
+           mainPanel(
+                     # tableOutput("table1_N")
+                     #DT::dataTableOutput("table1_N")
+                     visNetworkOutput("network")
+                    )
+                   )
+        )
        )
 
 
@@ -115,38 +100,46 @@ tabPanel("Concordance Network",
 
 server <- function(input, output) {
   
-  datasetInput_Dataset <- reactive({
-    if (is.null(input$L1000_Dataset))
-      return()
+#### Server TAB1 #### 
+datasetInput_Dataset <- reactive({
+                                  if (is.null(input$L1000_Dataset))
+                                  {return()}
     
-    switch(input$L1000_Dataset,
-          "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
-          "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
-          )
-             })
+                                   switch(input$L1000_Dataset,
+                                          "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
+                                          "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
+                                         )
+                                })
   
-  Drugs_SigsR <- reactive({
-  
-    Drugs_Sigs <- read.table(file=datasetInput_Dataset(),sep ="\t", header=TRUE)
-    Drugs_Sigs <- na.omit(Drugs_Sigs)
-    row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs$Genes)
-    #Drugs <- as.character(Drugs_Sigs$Genes)
-    Drugs_Sigs <- Drugs_Sigs[,-1]
-    Drugs_Sigs
-  })
-  
-  Drugs <- reactive({ row.names(Drugs_SigsR())})
-  
-  
-  
-  output$ui <- renderUI({ selectInput("signature", "Dynamic",choices = Drugs(),selected = "GBM_JQ1")})
+
+Drugs_SigsR <- reactive({
+                         Drugs_Sigs <- read.table(file=datasetInput_Dataset(),sep ="\t", header=TRUE)
+                         Drugs_Sigs <- na.omit(Drugs_Sigs)
+                         row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs$Genes)
+                         #Drugs <- as.character(Drugs_Sigs$Genes)
+                         Drugs_Sigs <- Drugs_Sigs[,-1]
+                         Drugs_Sigs
+                       })
+
 
   
-  values <- reactiveValues()
-  output$selected_var <- renderText({
-    value2 <- as.numeric(100 - as.numeric(input$bins))
-    paste("You have selected to use a ", value2,"% threshold for the gene consensus score. Genes with the lowest ",input$bins,"% scores will be filtered out",sep = "")
-    })
+Drugs <- reactive({ row.names(Drugs_SigsR())})
+  
+  
+  
+output$ui <- renderUI({ selectInput("signature", "Choose a Reference Drug",choices = Drugs(),selected = "GBM_JQ1")})
+
+
+
+values <- reactiveValues()
+
+
+
+output$selected_var <- renderText({
+                                   value2 <- as.numeric(100 - as.numeric(input$bins))
+                                   paste("You have selected to use a ", value2,"% threshold for the gene consensus score. Genes with the lowest ",input$bins,"% scores will be filtered out",sep = "")
+                                   })
+
   
   #datasetInput_Dataset <- reactive({
   #  switch(input$L1000_Dataset,
@@ -310,7 +303,7 @@ server <- function(input, output) {
     
     contentType="text/plain"
   )
-#### TAB2 ####
+#### Server TAB2 ####
   
   datasetInput_Dataset_N <- reactive({
                                        if (is.null(input$L1000_Dataset_N))
