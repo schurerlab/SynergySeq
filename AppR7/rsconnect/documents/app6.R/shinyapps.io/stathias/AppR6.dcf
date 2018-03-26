@@ -1,0 +1,12 @@
+name: AppR6
+title: AppR6
+username:
+account: stathias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 295943
+bundleId: 1264469
+url: https://stathias.shinyapps.io/AppR6/
+when: 1520865465.9181
+asMultiple: FALSE
+asStatic: FALSE

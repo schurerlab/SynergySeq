@@ -1,0 +1,12 @@
+name: AppR3
+title: AppR3
+username:
+account: stathias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 267239
+bundleId: 1201042
+url: https://stathias.shinyapps.io/AppR3/
+when: 1517406681.79294
+asMultiple: FALSE
+asStatic: FALSE

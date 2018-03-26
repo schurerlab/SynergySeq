@@ -1,0 +1,12 @@
+name: AppR7
+title: AppR7
+username:
+account: stathias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 308662
+bundleId: 1288373
+url: https://stathias.shinyapps.io/AppR7/
+when: 1522066397.87417
+asMultiple: FALSE
+asStatic: FALSE

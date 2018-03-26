@@ -1,0 +1,12 @@
+name: AppR2
+title: AppR2
+username:
+account: stathias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 251638
+bundleId: 1151560
+url: https://stathias.shinyapps.io/AppR2/
+when: 1514335083.02591
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,0 +1,12 @@
+name: AppR5
+title: AppR5
+username:
+account: stathias
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 294474
+bundleId: 1255565
+url: https://stathias.shinyapps.io/AppR5/
+when: 1520362138.27301
+asMultiple: FALSE
+asStatic: FALSE
