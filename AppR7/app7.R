@@ -21,7 +21,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
     sidebarPanel(
                  h3("Step 1:"),
                  selectInput(inputId = "L1000_Dataset",
-                 label = "Choose the L1000 Dataset:",
+                 label = "Choose an L1000 Dataset:",
                  choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
                  hr(),
                  h3("Step 2:"),
@@ -31,11 +31,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
                  min = 1,
                  max = 100,
                  value = 33),
-                 helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the JQ1 Signature"),
+                 helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the Reference Drug Signature"),
                  hr(),
                  h3("Step 3:"),
                  selectInput(inputId = "disease",
-                 label = "Disease signature:",
+                 label = "Choose a Disease Signature:",
                  choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)", 
                              "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
                  helpText("OR"),  
@@ -91,6 +91,14 @@ tabPanel("Concordance Network",
                      visNetworkOutput("network")
                     )
                    )
+        ),
+tabPanel("About",
+         mainPanel(
+           p("More details coming soon."),
+           p("Code available at:"),
+           a("https://github.com/schurerlab/SynergySeq",target="_blank",href="https://github.com/schurerlab/SynergySeq")
+           
+         )
         )
        )
 
@@ -141,21 +149,13 @@ output$selected_var <- renderText({
                                    })
 
   
-  #datasetInput_Dataset <- reactive({
-  #  switch(input$L1000_Dataset,
-   #        "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated.txt",
-   #        "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017.txt"
-   #        )
-   #           })
   
   
-  
-  
-  datasetInput_Dis <- reactive({
-    if(is.null(input$disease2))
-    {
-    switch(input$disease,
-      "Glioblastoma TCGA (GBM)" = "data/TCGA_GBM_Signature.txt",
+datasetInput_Dis <- reactive({
+                               if(is.null(input$disease2))
+                                  {
+                                   switch(input$disease,
+                                          "Glioblastoma TCGA (GBM)" = "data/TCGA_GBM_Signature.txt",
       "Colon TCGA (CRC)" = "data/TCGA_CRC_Signature.txt",
       "Breast TCGA (BRCA)" = "data/TCGA_BRCA_Signature.txt",
       "PDX GBM Group 1" = "data/Table_G1_1_PDX_Group1_L1000_only.txt",
@@ -272,7 +272,7 @@ output$selected_var <- renderText({
     cols <- as.character(colnames(Drugs_SigsR()))
     TCGA_Sig2 <- TCGA_Sig()
     length2 <- intersect(cols,as.character(TCGA_Sig2$Genes))
-    paste(length(length2)," genes of the Disease Signature belong to the L1000 Gene list")
+    paste("The Disease Signature has ",length(length2)," genes that are measured by the L1000 Platform")
   })
   
   
@@ -288,7 +288,7 @@ output$selected_var <- renderText({
     JQ1_Sig3$JQ1 <- as.numeric(as.character(JQ1_Sig3$JQ1))
     JQ1_Sig3_2 <- JQ1_Sig3[which(JQ1_Sig3$JQ1 > T6 | JQ1_Sig3$JQ1 < -T6),]
     JQ1_Sig3_2 <- JQ1_Sig3_2[which(JQ1_Sig3_2$JQ1 > 0 | JQ1_Sig3_2$JQ1 < 0),]
-    paste("The",input$signature," signature has",length(JQ1_Sig3_2$Genes),"genes")
+    paste("The",input$signature," signature has",length(JQ1_Sig3_2$Genes),"genes that are measured by the L1000 Platform")
   })
   
  
