@@ -54,7 +54,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
               br(),
               br(),
               br(),
-              downloadButton("downloadData", "Download Table"),
+              downloadButton("downloadData", "Download Synergy Plot Data"),
+              downloadButton("downloadData_Drug_Sig", "Download Drug Signatures"),
               #DT::dataTableOutput("view1"),
               tableOutput("table1")
              )
@@ -92,6 +93,9 @@ tabPanel("Concordance Network",
                     )
                    )
         ),
+### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+#### UI TAB3 #### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### 
 tabPanel("About",
          mainPanel(
            p("More details coming soon."),
@@ -254,9 +258,13 @@ datasetInput_Dis <- reactive({
     
     })
   
-  output$table1 <- renderTable({ 
-    s <- event_data("plotly_selected")
-    values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]})
+  output$table1 <- renderTable({
+                                
+                                s <- event_data("plotly_selected")
+                                values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
+                                values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
+                                values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
+                              })
   
  # output$view1 <- DT::renderDataTable({ 
     #s <- event_data("plotly_selected")
@@ -300,9 +308,22 @@ datasetInput_Dis <- reactive({
       write.table(values$Final2 , file, row.names = TRUE,sep="\t")
       
     },
-    
     contentType="text/plain"
   )
+  
+  output$downloadData_Drug_Sig <- downloadHandler(
+    filename = function() {
+      paste("Drug_Signature_Table", ".txt", sep = "")
+    },
+    content = function(file) {
+      write.table(Drugs_SigsR() , file, row.names = TRUE,sep="\t")
+      
+    },
+    contentType="text/plain"
+  ) 
+  
+  
+  
 #### Server TAB2 ####
   
   datasetInput_Dataset_N <- reactive({

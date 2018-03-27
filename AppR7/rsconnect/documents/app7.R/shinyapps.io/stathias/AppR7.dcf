@@ -5,8 +5,8 @@ account: stathias
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 308662
-bundleId: 1290166
+bundleId: 1290209
 url: https://stathias.shinyapps.io/AppR7/
-when: 1522153639.85608
+when: 1522155420.91724
 asMultiple: FALSE
 asStatic: FALSE
