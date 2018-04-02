@@ -1,0 +1,12 @@
+name: appr7
+title: AppR7
+username:
+account: schurerlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 313760
+bundleId: 1298198
+url: https://schurerlab.shinyapps.io/appr7/
+when: 1522688314.19232
+asMultiple: FALSE
+asStatic: FALSE

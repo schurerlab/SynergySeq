@@ -233,7 +233,7 @@ datasetInput_Dis <- reactive({
                                     dd<- c(aa,bb,cc)
                                    })
     pp3 <- as.data.frame(t(pp2))
-    pmax <- max(pp3)
+    pmax <- max(pp3[,3])
     pp4 <- pp3/pmax
     Final <- merge(pp4,tt4,by="row.names")
     #text2 <- paste(input$signature,"_Orthogonality",sep="")
