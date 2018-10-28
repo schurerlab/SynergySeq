@@ -13,6 +13,19 @@ SM_MOA <- read.csv(file="data/L1000_SM_MOA.csv", header=TRUE)
 
       
 ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
+                                                        
+tabPanel("Introduction",
+         mainPanel(
+                   p("More details coming soon."),
+                   p("Code available at:"),
+                   a("https://github.com/schurerlab/SynergySeq",target="_blank",href="https://github.com/schurerlab/SynergySeq"),
+                   p("Acknowledgements: This research was supported by grant U54HL127624 awarded by the National Heart, Lung, and Blood Institute through funds provided by the trans-NIH Library of Integrated Network-based Cellular Signatures (LINCS) Program (http://www.lincsproject.org/) and the trans-NIH Big Data to Knowledge (BD2K) initiative (https://datascience.nih.gov/)."
+                     )
+                   )
+        ),                                                        
+                                                        
+                                                        
+                                                        
 ### ### ### ### ### ### ### ### ### ### ### ### ### ###                                                         
 #### UI TAB1 ####
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
