@@ -5,8 +5,8 @@ account: schurerlab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 447100
-bundleId: 1586335
+bundleId: 1834464
 url: https://schurerlab.shinyapps.io/synergyseq/
-when: 1536954635.76542
+when: 1548346632.31503
 asMultiple: FALSE
 asStatic: FALSE
