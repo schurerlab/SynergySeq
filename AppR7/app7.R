@@ -73,7 +73,10 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                              helpText("OR"),
                                              fileInput("disease2", "Upload a Disease Signature",
                                                            multiple = FALSE,
-                                                           accept = c(".txt"))
+                                                           accept = c(".txt")),
+                                            # downloadButton("downloadData", "Download_Template", class="butt1",  tags$head(tags$style(".butt1{background-color:white;} .butt1{color: black;}")))
+                                             
+                                             downloadButton(outputId="downloadExample", "Disease Signature Example", class="btn-sm")
                                                ),
                                      mainPanel(
                                        p("More details coming soon."),
@@ -312,6 +315,7 @@ datasetInput_Dis <- reactive({
     filename = function() {
       paste("output", ".txt", sep = "")
     },
+    
     content = function(file) {
       write.table(values$Final2 , file, row.names = TRUE,sep="\t")
       
@@ -319,12 +323,27 @@ datasetInput_Dis <- reactive({
     contentType="text/plain"
   )
   
+  
+  
+  
   output$downloadData_Drug_Sig <- downloadHandler(
     filename = function() {
       paste("Drug_Signature_Table", ".txt", sep = "")
     },
     content = function(file) {
       write.table(Drugs_SigsR() , file, row.names = TRUE,sep="\t")
+      
+    },
+    contentType="text/plain"
+  ) 
+  
+  
+  output$downloadExample <- downloadHandler(
+    filename = function() {
+      paste("Drug_Signature_Example", ".txt", sep = "")
+    },
+    content = function(file) {
+      write.table(TCGA_Sig() , file, row.names = FALSE,sep="\t")
       
     },
     contentType="text/plain"
