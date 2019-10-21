@@ -8,76 +8,83 @@ library(DT)
 library(visNetwork)
 library(reshape2)
 library(shinythemes)
-SM_MOA <- read.csv(file="data/L1000_SM_MOA.csv", header=TRUE)
 
+SM_MOA <- read.csv(file="data/L1000_SM_MOA2.csv", header=TRUE)
 
-# ui <- fluidPage(theme = shinytheme("flatly"),responsive = TRUE,
-#                 #tags$head(
-#                 #  tags$style(HTML("hr {border-top:  2px solid #34495e;}"))
-#                 #),
-ui <- navbarPage( theme = shinytheme("flatly"),responsive = TRUE,
+      
+ui <- fluidPage(theme = shinytheme("flatly"),
+                navbarPage(
                   title = div(
-                              img(src = "Logos_3.png",height="30",align="left",position="fixed",hspace="10"),
-                              "SynergySeq"
-                              ),
-                  
-                  
+                    
+                      img(src = "Logos_3.png",height="30",align="left",position="fixed",hspace="10"),
+                    "SynergySeq"
+                  ),
 
-### UI-1 Introduction ####
-source("tabs/introduction.R",  local = TRUE)$value,
+                          ####  Introduction  ####
+                          tabPanel("Introduction",
+                                    mainPanel(
+                                      
+                                      tags$head(includeHTML(("google-analytics.html"))),
+                                      
+                                              h3(strong("SynergySeq:")),
+                                              h4("Identifying drug combinations that transcriptionally reverse a disease gene expression signature."),
+                                              br(),
+                                              h4(strong(tags$u("Workflow"))),
+                                              br(),
+                                              img(src="Figure1_Nov2018_v2.png",height="300", width="522.34"),
+                                              br(),
+                                              br(),
+                                              h4(strong(tags$u("Tools"))),
+                                              tags$ul(
+                                                tags$li(
+                                                  p(strong("Synergy Plot"),br(),"Ranking of the LINCS L1000 compounds based on their transcriptional similarity to a reference compound and their reversal of a disease signature"))
+                                               
+                                                 #tags$li(
+                                                 #        p(strong("Synergy Plot using Reference Drug"),br(),"Identify drugs that would best combine with a reference drug and reverse a given Disease Gene Expression Signature"))
+                                                
+                                                
+                                                
+                                                )
+                                              
+                                             )),
+                                  
+
+                          tabPanel("Tools", tabsetPanel( 
+                            ####  Synergy Plot  ####
+                            tabPanel("Synergy Plot",fluid=TRUE,
+                                     sidebarLayout(sidebarPanel(
+                                             h3("Step 1:"),
+                                             selectInput(inputId = "L1000_Dataset",
+                                                         label = "Choose an L1000 Dataset:",
+                                                         choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 March 2017"),
+                                                         #choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017","LINCS Median Scores"),selected = "LINCS L1000 Dec 2015"),
+                                             hr(),
+                                             h3("Step 2:"),
+                                             uiOutput("ui"),
+                                             sliderInput(inputId = "bins",
+                                                             label = "",
+                                                             min = 1,
+                                                             max = 100,
+                                                             value = 33),
+                                             helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the Reference Drug Signature"),
+                                             hr(),
+                                             h3("Step 3:"),
+                                             selectInput(inputId = "disease",
+                                                             label = "Choose a Disease Signature:",
+                                                             choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)",
+                                                                         "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
+                                             helpText("OR"),
+                                             fileInput("disease2", "Upload a Disease Signature",
+                                                           multiple = FALSE,
+                                                           accept = c(".txt")),
+                                            # downloadButton("downloadData", "Download_Template", class="butt1",  tags$head(tags$style(".butt1{background-color:white;} .butt1{color: black;}")))
                                              
-### UI-2 Tools ####
-
- tabPanel("Tools", tabsetPanel( 
-                           ####UI-2.1  Synergy Plot (Reference)  ####
-                                            tabPanel("Synergy Plot",
-                                                     sidebarLayout(fluid = FALSE, position="left",sidebarPanel(
-                                                       br(),
-                                                       tags$div(
-                                                         p("1. Disease Signature", style = "text-align: center;margin:0px;color: #34495e;font-weight: bold;font-size: 20px;"),
-                                                         hr(style="border-top-style: solid;border-top-width:2px;margin:12px;"),
-                                                         selectInput(inputId = "disease",
-                                                                     label = "Select a Disease Signature:",
-                                                                     choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)",
-                                                                                 "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
-                                                         helpText("OR",style="text-align: center;margin-top:0px;margin-bottom: 6px;"),
-                                                         textAreaInput("Ref_Sig_Text_Box", "Paste a Disease Signature", placeholder="Gene, Expression Value"),
-                                                         style="border-width: 2px;padding:15px;border-radius: 5px; border-color: #34495e;background-color: white;border-style: solid;"),
-
-                                                       br(),
-                                                       br(),
-                                                       
-                                                       tags$div(
-                                                        p("2. Reference Drug", style = "text-align: center;margin:0px;color: #34495e;font-weight: bold;font-size: 20px;"),
-                                                        hr(style="border-top-style: solid;border-top-width:2px;margin:12px;"),
-                                                        uiOutput("ui",style="margin-bottom: 0px;"),
-                                                        helpText("OR",style="text-align: center;margin-top:0px;margin-bottom: 6px;"),
-                                                        textAreaInput("Ref_Sig_Text_Box", "Paste a Reference Signature", placeholder="Gene, Expression Value"),
-                                                        style="border-width: 2px;padding:15px;border-radius: 5px; border-color: #34495e;background-color: white;border-style: solid;"),
-
-                                                    br(),
-                                                    br(),
-                                                    hr(style="margin:5px;border-top-style: dotted;border-top-width:2px;border-top-color:#34495e;"),
-                                                    p("Options:", style = "text-align: center;margin:0px;font-weight: bold;font-size: 20px;"),
-                                                    hr(style="margin:5px;border-top-style: dotted;border-top-width:2px;border-top-color:#34495e;"),
-                                                    br(),
-                                                    selectInput(inputId = "L1000_Dataset",
-                                                                label = "Choose an L1000 Dataset:",
-                                                                choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
-                                            
-                                                    sliderInput(inputId = "bins",
-                                                                label = "",
-                                                                min = 1,
-                                                                max = 100,
-                                                                value = 33),
-                                                    helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the Reference Drug Signature")
-                                                ),
-                                               
-                                               
-                                     mainPanel(fluid = FALSE,
-                                       
+                                             downloadButton(outputId="downloadExample", "Disease Signature Example", class="btn-sm")
+                                               ),
+                                     mainPanel(
+                                       p("More details coming soon."),
                                        tags$ul(
-                                       #tags$li(textOutput("selected_var")),
+                                       tags$li(textOutput("selected_var")),
                                        tags$li(textOutput("selected_var2")),
                                        tags$li(textOutput("selected_var3"))
                                              ),
@@ -93,61 +100,57 @@ source("tabs/introduction.R",  local = TRUE)$value,
                                      ))
                                      
                             ))),
-
-### UI-3 About ####
-source("tabs/about.R",  local = TRUE)$value
-        )
- 
-
-
-
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-
-
-                                    
+                  ### ABOUT UI ####
+                  tabPanel("About",
+                           mainPanel(
+                             h4(strong(tags$u("Citation: "))),
+                             p("Stathias, V., Jermakowicz, A.M., Maloof, M.E., Forlin, M., Walters, W., Suter, R.K., Durante, M.A., Williams, S.L., Harbour, J.W., Volmar, C.H., et al. (2018). Drug and disease signature integration identifies synergistic combinations in glioblastoma.", a("Nature Communications 9, 5315",target="_blank",href="https://doi.org/10.1038/s41467-018-07659-z")),
+                             br(),
+                             br(),
+                             h4(strong(tags$u("Acknowledgements: "))),
+                             p("This research was supported by grant U54HL127624 awarded by the National Heart, Lung, and Blood Institute through funds provided by the trans-NIH Library of Integrated Network-based Cellular Signatures (LINCS) Program (http://www.lincsproject.org/) and the trans-NIH Big Data to Knowledge (BD2K) initiative (https://datascience.nih.gov/)."),
+                             br(),
+                             br(),
+                             h4(strong(tags$u("Code Availability: "))),
+                             a("https://github.com/schurerlab/SynergySeq",target="_blank",href="https://github.com/schurerlab/SynergySeq")
+                             ))
+                  
+              
+                ))
+                                     
                
 server <- function(input, output) {
   
-#### 2.1 Synergy Plot #### 
-
-### Loading Signatures
-  Drugs_SigsR <- reactive({
-    Drugs_Sigs <- read.table(file=datasetInput_Dataset(),sep ="\t", header=TRUE)
-    Drugs_Sigs <- na.omit(Drugs_Sigs)
-    row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs$Genes)
-    Drugs_Sigs <- Drugs_Sigs[,-1]
-    Drugs_Sigs
-  })
-    
-Drugs <- reactive({ sort(row.names(Drugs_SigsR()))})
-output$ui <- renderUI({ selectInput("signature", "Select a Reference Drug",choices = Drugs(),selected = "GBM_JQ1")})
-
-  
-  
-### ### ### ### ###
-### 2.1 Options ###
-### ### ### ### ###  
-
-### Option 1: Selectiong Consensus Signature, Consensus Flavors, Median Signatures, Median Flavors  
+#### Server TAB1 #### 
 datasetInput_Dataset <- reactive({
-                                  ##if (is.null(input$L1000_Dataset))
-                                  ##{return()}
-                                  c("data/OUT3_noDMSO_noUntreated_Regina_removed.txt")
-                                   #switch(input$L1000_Dataset,
-                                   #       "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
-                                   #       "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
+                                  if (is.null(input$L1000_Dataset))
+                                  {return()}
+    
+                                   switch(input$L1000_Dataset,
+                                          "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
+                                          "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
                                           # "LINCS Median Scores" = "data/TCS_L1000_Ph2_Lvl5_MedianB_01_15_2019.txt"
-                                   #      )
+                                          
+                                         )
                                 })
   
 
+Drugs_SigsR <- reactive({
+                         Drugs_Sigs <- read.table(file=datasetInput_Dataset(),sep ="\t", header=TRUE)
+                         Drugs_Sigs <- na.omit(Drugs_Sigs)
+                         row.names(Drugs_Sigs) <-  as.character(Drugs_Sigs$Genes)
+                         #Drugs <- as.character(Drugs_Sigs$Genes)
+                         Drugs_Sigs <- Drugs_Sigs[,-1]
+                         Drugs_Sigs
+                       })
+
 
   
+Drugs <- reactive({ row.names(Drugs_SigsR())})
   
   
+  
+output$ui <- renderUI({ selectInput("signature", "Choose a Reference Drug",choices = Drugs(),selected = "GBM_JQ1")})
 
 
 
@@ -164,15 +167,22 @@ output$selected_var <- renderText({
   
   
 datasetInput_Dis <- reactive({
-                              switch(input$disease,
-                              "Glioblastoma TCGA (GBM)" = "data/TCGA_GBM_Signature.txt",
-                              "Colon TCGA (CRC)" = "data/TCGA_CRC_Signature.txt",
-                              "Breast TCGA (BRCA)" = "data/TCGA_BRCA_Signature.txt",
-                              "PDX GBM Group 1" = "data/Table_G1_1_PDX_Group1_L1000_only.txt",
-                              "PDX GBM Group 2" = "data/Table_G2_1_PDX_Group2_L1000_only.txt",
-                              "PDX GBM Group 3" = "data/Table_G3_1_PDX_Group3_L1000_only.txt" ,
-                              "PDX GBM Group 4" = "data/Table_G4_1_PDX_Group4_L1000_only.txt") 
-                            })
+                               if(is.null(input$disease2))
+                                  {
+                                   switch(input$disease,
+                                          "Glioblastoma TCGA (GBM)" = "data/TCGA_GBM_Signature.txt",
+      "Colon TCGA (CRC)" = "data/TCGA_CRC_Signature.txt",
+      "Breast TCGA (BRCA)" = "data/TCGA_BRCA_Signature.txt",
+      "PDX GBM Group 1" = "data/Table_G1_1_PDX_Group1_L1000_only.txt",
+      "PDX GBM Group 2" = "data/Table_G2_1_PDX_Group2_L1000_only.txt",
+      "PDX GBM Group 3" = "data/Table_G3_1_PDX_Group3_L1000_only.txt" ,
+      "PDX GBM Group 4" = "data/Table_G4_1_PDX_Group4_L1000_only.txt") 
+    }
+    else
+    {
+      input$disease2$datapath
+    }
+  })
  # JQ1_Sig <- reactive({read.table(file=datasetInput_Sig(),sep ="\t", header=TRUE)})
   JQ1_Sig <- reactive({
                       T <-t(Drugs_SigsR()[as.character(input$signature),])
@@ -262,21 +272,22 @@ datasetInput_Dis <- reactive({
     
     })
   
-  output$table1 <- renderTable({
-                                
-                                s <- event_data("plotly_selected")
-                                values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
-                                values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
-                                values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
-                              })
+  # output$table1 <- renderTable({
+  #                               
+  #                               s <- event_data("plotly_selected")
+  #                               values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
+  #                               values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
+  #                               values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
+  #                             })
   
- output$view1 <- DT::renderDataTable({ 
+  output$view1 <- DT::renderDataTable(escape=FALSE,{ 
     s <- event_data("plotly_selected")
-    values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
-    values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
-    values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
-    #values$Final2$Reference_Drug_Orthogonality <- round(as.numeric(values$Final2$Reference_Drug_Orthogonality),digits=2 )
-    values$Final2[,c(1,2,3,6,7)]
+   values$Final2
+   values$Final2[which(values$Final2$JQ1_Orthogonality == s$x & values$Final2$Disease_Discordance == s$y)  ,]
+    values$Final2[which(values$Final2$JQ1_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
+    
+    values$Final2[,c(1,7,4,5,8,9)]
+    
   })
   
   
@@ -343,76 +354,67 @@ datasetInput_Dis <- reactive({
     contentType="text/plain"
   ) 
   
- 
+  
+  
+#### Server TAB2 ####
+  
+  datasetInput_Dataset_N <- reactive({
+                                       if (is.null(input$L1000_Dataset_N))
+                                       return()
+                                       switch(input$L1000_Dataset_N,
+                                              "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
+                                              "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
+                                             )
+                                    })
+  
+  
+  Drugs_SigsR_N <- reactive({
+                              Drugs_Sigs_N <- read.table(file=datasetInput_Dataset_N(),sep ="\t", header=TRUE)
+                              Drugs_Sigs_N <- na.omit(Drugs_Sigs_N)
+                              row.names(Drugs_Sigs_N) <-  as.character(Drugs_Sigs_N$Genes)
+                              Drugs_Sigs_N <- Drugs_Sigs_N[,-1]
+                              Drugs_Sigs_N 
+                           }) 
+  
+  
+  Drugs_Ν <- reactive({
+                     as.character(row.names(Drugs_SigsR_N()))
+                    })
+   
+  
+  output$ui_N <- renderUI({ 
+                            selectInput(inputId="signature_N",label="",choices = Drugs_Ν(),selected = "JQ1")
+                         })
+  
+  
+  values_N <- reactiveValues()
+  #values_N$OUT2 <- apply(Drugs_SigsR_N(),2,as.numeric) 
+  #row.names(values_N$OUT2) <- row.names(Drugs_SigsR_N())
+  #valuesN$Cor1 <- cor(t(values_N$OUT2),t(values_N$OUT2), method="spearman")
+  #valuesN$Cor1 <- na.omit(valuesN$Cor1)
 
+  Correlation_N <- reactive({ 
+    Ta1 <- apply(Drugs_SigsR_N(),2,as.numeric) 
+    row.names(Ta1) <- row.names(Drugs_SigsR_N())
+    Cor1 <- cor(t(Ta1),t(Ta1), method="spearman")
+    Cor1                              
+                                 })
+  #nodes <- data.frame(id = row.names(Correlation_N()))
+  #edges <- data.frame(from = c(1,2), to = c(2,3))
+  #visNetwork(nodes, edges, width = "100%")
   
+  output$network <- renderVisNetwork({
+                                       nodes <- data.frame(id = row.names(Correlation_N()),label=row.names(Correlation_N()))
+                                       V1 <- upper.tri(Correlation_N(),diag = TRUE)
+                                       CD1 <- Correlation_N()
+                                       CD1[V1] <- NA
+                                       edges <- melt(CD1, na.rm = TRUE)
+                                       
+                                       edges <- edges[which(edges$value > as.numeric(input$bins_N) ),1:2]
+                                       colnames(edges) <- c("from","to")
+                                       
+                                      visNetwork(nodes, edges, width = "100%")})
   
-  
-  
-  
-  
-  
-  
-  
-# #### Server TAB2 ####
-#   
-#   datasetInput_Dataset_N <- reactive({
-#                                        if (is.null(input$L1000_Dataset_N))
-#                                        return()
-#                                        switch(input$L1000_Dataset_N,
-#                                               "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
-#                                               "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
-#                                              )
-#                                     })
-#   
-#   
-#   Drugs_SigsR_N <- reactive({
-#                               Drugs_Sigs_N <- read.table(file=datasetInput_Dataset_N(),sep ="\t", header=TRUE)
-#                               Drugs_Sigs_N <- na.omit(Drugs_Sigs_N)
-#                               row.names(Drugs_Sigs_N) <-  as.character(Drugs_Sigs_N$Genes)
-#                               Drugs_Sigs_N <- Drugs_Sigs_N[,-1]
-#                               Drugs_Sigs_N 
-#                            }) 
-#   
-#   
-#   Drugs_Ν <- reactive({
-#                      as.character(row.names(Drugs_SigsR_N()))
-#                     })
-#    
-#   
-#   output$ui_N <- renderUI({ 
-#                             selectInput(inputId="signature_N",label="",choices = Drugs_Ν(),selected = "JQ1")
-#                          })
-#   
-#   
-#   values_N <- reactiveValues()
-#   #values_N$OUT2 <- apply(Drugs_SigsR_N(),2,as.numeric) 
-#   #row.names(values_N$OUT2) <- row.names(Drugs_SigsR_N())
-#   #valuesN$Cor1 <- cor(t(values_N$OUT2),t(values_N$OUT2), method="spearman")
-#   #valuesN$Cor1 <- na.omit(valuesN$Cor1)
-# 
-#   Correlation_N <- reactive({ 
-#     Ta1 <- apply(Drugs_SigsR_N(),2,as.numeric) 
-#     row.names(Ta1) <- row.names(Drugs_SigsR_N())
-#     Cor1 <- cor(t(Ta1),t(Ta1), method="spearman")
-#     Cor1                              
-#                                  })
-#   #nodes <- data.frame(id = row.names(Correlation_N()))
-#   #edges <- data.frame(from = c(1,2), to = c(2,3))
-#   #visNetwork(nodes, edges, width = "100%")
-#   
-#   output$network <- renderVisNetwork({
-#                                        nodes <- data.frame(id = row.names(Correlation_N()),label=row.names(Correlation_N()))
-#                                        V1 <- upper.tri(Correlation_N(),diag = TRUE)
-#                                        CD1 <- Correlation_N()
-#                                        CD1[V1] <- NA
-#                                        edges <- melt(CD1, na.rm = TRUE)
-#                                        
-#                                        edges <- edges[which(edges$value > as.numeric(input$bins_N) ),1:2]
-#                                        colnames(edges) <- c("from","to")
-#                                        
-#                                       visNetwork(nodes, edges, width = "100%")})
-#   
 
 }
 
