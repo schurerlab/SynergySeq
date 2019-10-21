@@ -9,108 +9,116 @@ library(visNetwork)
 library(reshape2)
 library(shinythemes)
 
-SM_MOA <- read.csv(file="data/L1000_SM_MOA.csv", header=TRUE)
+SM_MOA <- read.csv(file="data/L1000_SM_MOA2.csv", header=TRUE)
 
       
-ui <- fluidPage(theme = shinytheme("flatly"),navbarPage("SynergySeq",
-### ### ### ### ### ### ### ### ### ### ### ### ### ###                                                         
-#### UI TAB1 ####
-### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-  tabPanel("Synergy Plot",
-  sidebarLayout(
-    sidebarPanel(
-                 h3("Step 1:"),
-                 selectInput(inputId = "L1000_Dataset",
-                 label = "Choose an L1000 Dataset:",
-                 choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
-                 hr(),
-                 h3("Step 2:"),
-                 uiOutput("ui"),
-                 sliderInput(inputId = "bins",
-                 label = "",
-                 min = 1,
-                 max = 100,
-                 value = 33),
-                 helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the Reference Drug Signature"),
-                 hr(),
-                 h3("Step 3:"),
-                 selectInput(inputId = "disease",
-                 label = "Choose a Disease Signature:",
-                 choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)", 
-                             "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
-                 helpText("OR"),  
-                 fileInput("disease2", "Upload a Disease Signature",
-                 multiple = FALSE,
-                 accept = c(".txt"))
-                ),
-    mainPanel(
-              tags$ul(
-                      tags$li(textOutput("selected_var")), 
-                      tags$li(textOutput("selected_var2")),
-                      tags$li(textOutput("selected_var3"))
-                     ),
-              plotlyOutput("plot1"),
-              br(),
-              br(),
-              br(),
-              br(),
-              downloadButton("downloadData", "Download Synergy Plot Data"),
-              downloadButton("downloadData_Drug_Sig", "Download Drug Signatures"),
-              #DT::dataTableOutput("view1"),
-              tableOutput("table1")
-             )
-            )
-           ),
+ui <- fluidPage(theme = shinytheme("flatly"),
+                navbarPage(
+                  title = div(
+                    
+                      img(src = "Logos_3.png",height="30",align="left",position="fixed",hspace="10"),
+                    "SynergySeq"
+                  ),
 
+                          ####  Introduction  ####
+                          tabPanel("Introduction",
+                                    mainPanel(
+                                      
+                                      tags$head(includeHTML(("google-analytics.html"))),
+                                      
+                                              h3(strong("SynergySeq:")),
+                                              h4("Identifying drug combinations that transcriptionally reverse a disease gene expression signature."),
+                                              br(),
+                                              h4(strong(tags$u("Workflow"))),
+                                              br(),
+                                              img(src="Figure1_Nov2018_v2.png",height="300", width="522.34"),
+                                              br(),
+                                              br(),
+                                              h4(strong(tags$u("Tools"))),
+                                              tags$ul(
+                                                tags$li(
+                                                  p(strong("Synergy Plot"),br(),"Ranking of the LINCS L1000 compounds based on their transcriptional similarity to a reference compound and their reversal of a disease signature"))
+                                               
+                                                 #tags$li(
+                                                 #        p(strong("Synergy Plot using Reference Drug"),br(),"Identify drugs that would best combine with a reference drug and reverse a given Disease Gene Expression Signature"))
+                                                
+                                                
+                                                
+                                                )
+                                              
+                                             )),
+                                  
 
-
-### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-#### UI TAB2 #### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-
-tabPanel("Concordance Network",
-          sidebarLayout(
-                        sidebarPanel(
-                        h3("Step 1:"),
-                        selectInput(inputId = "L1000_Dataset_N",
-                        label = "LINCS L1000 Dataset:",
-                        choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 Dec 2015"),
-                        sliderInput(inputId = "bins_N",
-                        label = "Concordance Ratio threshold",
-                        min = 0.01,
-                        max = 1,
-                        value = 0.7),
-                        helpText("description..."),
-                        hr(),
-                        h3("Step 2:"),
-                        uiOutput("ui_N")
-                       ),
-           
-           mainPanel(
-                     # tableOutput("table1_N")
-                     #DT::dataTableOutput("table1_N")
-                     visNetworkOutput("network")
-                    )
-                   )
-        ),
-### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-#### UI TAB3 #### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-tabPanel("About",
-         mainPanel(
-           p("More details coming soon."),
-           p("Code available at:"),
-           a("https://github.com/schurerlab/SynergySeq",target="_blank",href="https://github.com/schurerlab/SynergySeq"),
-           p("Acknowledgements: This research was supported by grant U54HL127624 awarded by the National Heart, Lung, and Blood Institute through funds provided by the trans-NIH Library of Integrated Network-based Cellular Signatures (LINCS) Program (http://www.lincsproject.org/) and the trans-NIH Big Data to Knowledge (BD2K) initiative (https://datascience.nih.gov/).")
-           
-         )
-        )
-       )
-
-
-)
-
-
+                          tabPanel("Tools", tabsetPanel( 
+                            ####  Synergy Plot  ####
+                            tabPanel("Synergy Plot",fluid=TRUE,
+                                     sidebarLayout(sidebarPanel(
+                                             h3("Step 1:"),
+                                             selectInput(inputId = "L1000_Dataset",
+                                                         label = "Choose an L1000 Dataset:",
+                                                         choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017"),selected = "LINCS L1000 March 2017"),
+                                                         #choices = c("LINCS L1000 Dec 2015", "LINCS L1000 March 2017","LINCS Median Scores"),selected = "LINCS L1000 Dec 2015"),
+                                             hr(),
+                                             h3("Step 2:"),
+                                             uiOutput("ui"),
+                                             sliderInput(inputId = "bins",
+                                                             label = "",
+                                                             min = 1,
+                                                             max = 100,
+                                                             value = 33),
+                                             helpText("Filter out the lowest 'n' percentile of the gene consensus scores from the Reference Drug Signature"),
+                                             hr(),
+                                             h3("Step 3:"),
+                                             selectInput(inputId = "disease",
+                                                             label = "Choose a Disease Signature:",
+                                                             choices = c("Glioblastoma TCGA (GBM)","Colon TCGA (CRC)", "Breast TCGA (BRCA)",
+                                                                         "PDX GBM Group 1", "PDX GBM Group 2", "PDX GBM Group 3", "PDX GBM Group 4")),
+                                             helpText("OR"),
+                                             fileInput("disease2", "Upload a Disease Signature",
+                                                           multiple = FALSE,
+                                                           accept = c(".txt")),
+                                            # downloadButton("downloadData", "Download_Template", class="butt1",  tags$head(tags$style(".butt1{background-color:white;} .butt1{color: black;}")))
+                                             
+                                             downloadButton(outputId="downloadExample", "Disease Signature Example", class="btn-sm")
+                                               ),
+                                     mainPanel(
+                                       p("More details coming soon."),
+                                       tags$ul(
+                                       tags$li(textOutput("selected_var")),
+                                       tags$li(textOutput("selected_var2")),
+                                       tags$li(textOutput("selected_var3"))
+                                             ),
+                                       plotlyOutput("plot1"),
+                                       br(),
+                                       br(),
+                                       br(),
+                                       br(),
+                                       downloadButton("downloadData", "Download Synergy Plot Data"),
+                                       downloadButton("downloadData_Drug_Sig", "Download Drug Signatures"),
+                                       DT::dataTableOutput("view1")
+                                       #tableOutput("table1")
+                                     ))
+                                     
+                            ))),
+                  ### ABOUT UI ####
+                  tabPanel("About",
+                           mainPanel(
+                             h4(strong(tags$u("Citation: "))),
+                             p("Stathias, V., Jermakowicz, A.M., Maloof, M.E., Forlin, M., Walters, W., Suter, R.K., Durante, M.A., Williams, S.L., Harbour, J.W., Volmar, C.H., et al. (2018). Drug and disease signature integration identifies synergistic combinations in glioblastoma.", a("Nature Communications 9, 5315",target="_blank",href="https://doi.org/10.1038/s41467-018-07659-z")),
+                             br(),
+                             br(),
+                             h4(strong(tags$u("Acknowledgements: "))),
+                             p("This research was supported by grant U54HL127624 awarded by the National Heart, Lung, and Blood Institute through funds provided by the trans-NIH Library of Integrated Network-based Cellular Signatures (LINCS) Program (http://www.lincsproject.org/) and the trans-NIH Big Data to Knowledge (BD2K) initiative (https://datascience.nih.gov/)."),
+                             br(),
+                             br(),
+                             h4(strong(tags$u("Code Availability: "))),
+                             a("https://github.com/schurerlab/SynergySeq",target="_blank",href="https://github.com/schurerlab/SynergySeq")
+                             ))
+                  
+              
+                ))
+                                     
+               
 server <- function(input, output) {
   
 #### Server TAB1 #### 
@@ -121,6 +129,8 @@ datasetInput_Dataset <- reactive({
                                    switch(input$L1000_Dataset,
                                           "LINCS L1000 Dec 2015" = "data/OUT3_noDMSO_noUntreated_Regina_removed.txt",
                                           "LINCS L1000 March 2017" = "data/matPH3_2_1_0.2_0.3_L1000_Batch2017_Regina_removed.txt"
+                                          # "LINCS Median Scores" = "data/TCS_L1000_Ph2_Lvl5_MedianB_01_15_2019.txt"
+                                          
                                          )
                                 })
   
@@ -214,7 +224,10 @@ datasetInput_Dis <- reactive({
     tt4 <- tt3/tmax
     ### ### ### ### ### ### ### ### ### ### ### ###
     #this is to calculate the ratio of the genes that are discordant to the Disease Signature (and are not affected by JQ1) devided by the # of genes that are concordant to the Disease Signature (and non-JQ1)
+   
     jq1_genes2 <- as.character(JQ1_Sig_v[which(JQ1_Sig_v$JQ1==0),2])
+    #01/23/2019 jq1_genes2 <- as.character(JQ1_Sig_v[which(JQ1_Sig_v$JQ1 < V6 & JQ1_Sig_v$JQ1 > -V6),2])
+    
     genes <- colnames(Drugs_SigsR())
     TCGA_Sig_v$log2FoldChange <- as.numeric(TCGA_Sig_v$log2FoldChange)
     TCGA_Sig_v2 <- TCGA_Sig_v[,-1,drop=FALSE]
@@ -259,21 +272,23 @@ datasetInput_Dis <- reactive({
     
     })
   
-  output$table1 <- renderTable({
-                                
-                                s <- event_data("plotly_selected")
-                                values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
-                                values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
-                                values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
-                              })
+  # output$table1 <- renderTable({
+  #                               
+  #                               s <- event_data("plotly_selected")
+  #                               values$Final2$Reference_Drug_Orthogonality <- as.character(values$Final2$Reference_Drug_Orthogonality)
+  #                               values$Final2$Disease_Discordance <- as.character(values$Final2$Disease_Discordance)
+  #                               values$Final2[which(values$Final2$Reference_Drug_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
+  #                             })
   
- # output$view1 <- DT::renderDataTable({ 
-    #s <- event_data("plotly_selected")
-  #  values$Final2
-   # values$Final2[which(values$Final2$JQ1_Orthogonality == s$x & values$Final2$Disease_Discordance == s$y)  ,]
-    #values$Final2[which(values$Final2$JQ1_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
+  output$view1 <- DT::renderDataTable(escape=FALSE,{ 
+    s <- event_data("plotly_selected")
+   values$Final2
+   values$Final2[which(values$Final2$JQ1_Orthogonality == s$x & values$Final2$Disease_Discordance == s$y)  ,]
+    values$Final2[which(values$Final2$JQ1_Orthogonality %in% s$x & values$Final2$Disease_Discordance %in% s$y)  ,]
     
- # })
+    values$Final2[,c(1,7,4,5,8,9)]
+    
+  })
   
   
   
@@ -305,6 +320,7 @@ datasetInput_Dis <- reactive({
     filename = function() {
       paste("output", ".txt", sep = "")
     },
+    
     content = function(file) {
       write.table(values$Final2 , file, row.names = TRUE,sep="\t")
       
@@ -312,12 +328,27 @@ datasetInput_Dis <- reactive({
     contentType="text/plain"
   )
   
+  
+  
+  
   output$downloadData_Drug_Sig <- downloadHandler(
     filename = function() {
       paste("Drug_Signature_Table", ".txt", sep = "")
     },
     content = function(file) {
       write.table(Drugs_SigsR() , file, row.names = TRUE,sep="\t")
+      
+    },
+    contentType="text/plain"
+  ) 
+  
+  
+  output$downloadExample <- downloadHandler(
+    filename = function() {
+      paste("Drug_Signature_Example", ".txt", sep = "")
+    },
+    content = function(file) {
+      write.table(TCGA_Sig() , file, row.names = FALSE,sep="\t")
       
     },
     contentType="text/plain"
